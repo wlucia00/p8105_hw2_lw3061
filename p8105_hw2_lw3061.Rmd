@@ -1,7 +1,57 @@
 ---
 title: "P8105 HW2"
-author: "Lucia Wang"
-date: "2023-09-28"
+author: "Lucia Wang (lw3061)"
+date: "due 10-04-2023"
 output: github_document
 ---
+```{r}
+library(tidyverse)
+```
 
+# Problem 1
+
+## clean data in pols-month.csv
+Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
+
+## clean data in snp.csv 
+arrange according to year and month, and organize so that year and month are the leading columns.
+
+## tidy unemployment data
+this process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
+
+## merge snp and pols and merge unemployment into the result
+Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+
+# Problem 2
+## Read and clean the Mr. Trash Wheel sheet:
+specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
+
+use reasonable variable names
+
+omit rows that do not include dumpster-specific data
+
+##  Update the data to include a new homes_powered variable based on this calculation.
+
+## Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset
+
+## Write a paragraph about these data; you are encouraged to use inline R. 
+Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+
+
+# Problem 3
+## Import, clean, and tidy the dataset of baseline demographics. 
+Ensure that sex and APOE4 carrier status are appropriate encoded (i.e. not numeric), and remove any participants who do not meet the stated inclusion criteria (i.e. no MCI at baseline). 
+
+Discuss important steps in the import process and relevant features of the dataset. 
+
+How many participants were recruited, and of these how many develop MCI? 
+
+What is the average baseline age? What proportion of women in the study are APOE4 carriers?
+
+## Similarly, import, clean, and tidy the dataset of longitudinally observed biomarker values; 
+comment on the steps on the import process and the features of the dataset.
+
+## Check whether some participants appear in only the baseline or amyloid datasets, and comment on your findings. 
+
+## Combine the demographic and biomarker datasets so that only participants who appear in both datasets are retained, and briefly describe the resulting dataset; 
+export the result as a CSV to your data directory
