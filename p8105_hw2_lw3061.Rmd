@@ -81,13 +81,7 @@ Key variables are `weight_tons`, `homes_powered`, `dumpster`, and `month`/`year`
 
 The total weight of trash collected by Professor Trash Wheel was `r sum(pull(proftrash_df, weight_tons))` tons. 
 
-```{r, message=FALSE, warning=FALSE, echo=FALSE}
-filter_gwynnda = 
-  gwynnda_df |>
-  filter(month=="July", year =="2021")
-```
-
-The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(pull(filter_gwynnda,weight_tons))` tons.
+The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(pull(filter(gwynnda_df, month=="July", year=="2021"),weight_tons))` tons.
 
 
 # Problem 3
