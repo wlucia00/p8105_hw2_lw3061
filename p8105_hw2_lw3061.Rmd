@@ -6,6 +6,7 @@ output: github_document
 ---
 ```{r}
 library(tidyverse)
+library(readxl)
 ```
 
 # Problem 1
@@ -23,19 +24,70 @@ this process will involve switching from “wide” to “long” format; ensuri
 Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
 
 # Problem 2
-## Read and clean the Mr. Trash Wheel sheet:
-specify the sheet in the Excel file and to omit non-data entries (rows with notes / figures; columns containing notes) using arguments in read_excel
+Read and clean the Mr. Trash Wheel sheet.
 
-use reasonable variable names
+1) specify the sheet and omit rows with notes/figures and columns with notes
+```{r}
+mrtrash_df = 
+  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+             sheet="Mr. Trash Wheel", 
+             range="A2:M549")
+```
 
-omit rows that do not include dumpster-specific data
+2) clean and update the data to include a new `homes_powered` variable. Add an additional variable to keep track of which Trash Wheel is which...
+```{r}
+mrtrash_df =
+  janitor::clean_names(mrtrash_df) |>
+  mutate(kilowatts = weight_tons * 500,
+         homes_powered = kilowatts / 30,
+         name = "Mr. Trash Wheel") 
+```
 
-##  Update the data to include a new homes_powered variable based on this calculation.
+3) repeat for Professor Trash Wheel and Gwynnda, then combine
+```{r}
+proftrash_df =
+  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+             sheet="Professor Trash Wheel", 
+             range="A2:L96") |>
+  janitor::clean_names() |>
+  mutate(kilowatts = weight_tons * 500,
+         homes_powered = kilowatts / 30,
+         name = "Professor Trash Wheel",
+         year = as.character(year)) 
 
-## Use a similar process to import, clean, and organize the data for Professor Trash Wheel and Gwynnda, and combine these with the Mr. Trash Wheel dataset to produce a single tidy dataset
+proftrash_df
 
-## Write a paragraph about these data; you are encouraged to use inline R. 
-Be sure to note the number of observations in the resulting dataset, and give examples of key variables. For available data, what was the total weight of trash collected by Professor Trash Wheel? What was the total number of cigarette butts collected by Gwynnda in July of 2021?
+gwynnda_df = 
+  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+             sheet="Gwynnda Trash Wheel", 
+             range="A2:J108") |>
+  janitor::clean_names() |>
+  mutate(kilowatts = weight_tons * 500,
+         homes_powered = kilowatts / 30,
+         name = "Gwynnda Trash Wheel",
+         year = as.character(year))
+
+gwynnda_df
+
+trashwheels_tidy_df =
+  bind_rows(mrtrash_df, proftrash_df, gwynnda_df) |>
+  janitor::clean_names()
+
+```
+
+The final tidied dataset with all 3 trash wheels incorporated has `r ncol(trashwheels_tidy_df)` columns (variables) and `r nrow(trashwheels_tidy_df)` rows (observations). 
+
+Key variables are `weight_tons`, `homes_powered`, `dumpster`, and `month`/`year`/`date`. Some of the most popular trash items were `cigarette_butts`, `plastic_bottles`, and `polystyrene`, but others like `sports_balls` and `plastic_bags` were also present. 
+
+The total weight of trash collected by Professor Trash Wheel was `r sum(pull(proftrash_df, weight_tons))` tons. 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+filter_gwynnda = 
+  gwynnda_df |>
+  filter(month=="July", year =="2021")
+```
+
+The total number of cigarette butts collected by Gwynnda in July 2021 was `r sum(pull(filter_gwynnda,weight_tons))` tons.
 
 
 # Problem 3
