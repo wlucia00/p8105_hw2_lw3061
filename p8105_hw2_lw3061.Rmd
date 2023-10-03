@@ -10,18 +10,78 @@ library(readxl)
 ```
 
 # Problem 1
+## Merge some FiveThirtyEight datasets together.
 
-## clean data in pols-month.csv
-Use separate() to break up the variable mon into integer variables year, month, and day; replace month number with month name; create a president variable taking values gop and dem, and remove prez_dem and prez_gop; and remove the day variable.
+1) clean the data in `pols-month.csv`
+```{r}
+pols_month_df = 
+  read_csv("fivethirtyeight_datasets/pols-month.csv") |>
+  janitor::clean_names() |>
+  separate(mon, c("year", "month", "day")) |>
+  mutate(
+    month = case_match(month,
+                       "10" ~ "October",
+                      "11" ~ "November",
+                       "12" ~ "December",
+                      "01" ~ "January",
+                      "02" ~ "February",
+                      "03" ~ "March",
+                      "04" ~ "April",
+                      "05" ~ "May",
+                      "06" ~ "June",
+                      "07" ~ "July",
+                      "08" ~ "August",
+                      "9" ~ "September"),
+    president = case_match(prez_dem, 
+                           1 ~ "dem",
+                           0 ~ "gop"),
+    year = as.numeric(year)
+  ) |>
+  select(c(-prez_dem, -prez_gop, -day)) |> 
+  arrange(year, month)
+```
 
-## clean data in snp.csv 
-arrange according to year and month, and organize so that year and month are the leading columns.
+2) clean the data in `snp.csv` (solution adapted from posted solutions)
+```{r}
+snp_df = 
+  read_csv("fivethirtyeight_datasets/snp.csv") |>
+  separate(date, into = c("month", "day", "year"), convert = TRUE) |>
+  arrange(year, month) |>
+  mutate(month = month.name[month]) |>
+  select(year, month, close) 
+```
 
-## tidy unemployment data
-this process will involve switching from “wide” to “long” format; ensuring that key variables have the same name; and ensuring that key variables take the same values.
+3) do the same with `unemployment` (solution adapted from posted solutions)
+```{r}
+months = 
+  tibble(
+    month_num = 1:12,
+    month_abb = month.abb,
+    month = month.name
+  )
 
-## merge snp and pols and merge unemployment into the result
-Write a short paragraph about these datasets. Explain briefly what each dataset contained, and describe the resulting dataset (e.g. give the dimension, range of years, and names of key variables).
+unemployment_df = 
+  read_csv("fivethirtyeight_datasets/unemployment.csv") |>
+  rename(year = Year) |>
+  pivot_longer(
+    Jan:Dec, 
+    names_to = "month_abb",
+    values_to = "unemployment"
+  ) |> 
+  left_join(x = _, y = months) |> 
+  select(year, month, unemployment)
+```
+
+4) join datasets by merging (solution adapted from posted solutions)
+```{r}
+merge538 = 
+  left_join(pols_month_df, snp_df) |>
+  left_join(x = _, y = unemployment_df)
+```
+
+The dataset `pols_month_df` contained data about the political parties in office at specific times, with `r nrow(pols_month_df)` observations and `r ncol(pols_month_df)` variables. `snp_df` had `r nrow(snp_df)`observations and `r ncol(snp_df)` variables, and `unemployment_df` had `r nrow(unemployment_df)` observations and `r ncol(unemployment_df)` variables. 
+
+The final merged dataset gives information about the president, governors, representatives, and senators in office at specific times between 1945 and 2015, as well as information about unemployment rates. 
 
 # Problem 2
 ### Read and clean the Mr. Trash Wheel sheet.
