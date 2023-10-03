@@ -89,9 +89,9 @@ The final merged dataset gives information about the president, governors, repre
 1) specify the sheet and omit rows with notes/figures and columns with notes
 ```{r}
 mrtrash_df = 
-  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+  read_excel("202309 Trash Wheel Collection Data.xlsx", 
              sheet="Mr. Trash Wheel", 
-             range="A2:M549")
+             range="A2:M586")
 ```
 
 2) clean and update the data to include a new `homes_powered` variable. Add an additional variable to keep track of which Trash Wheel is which...
@@ -106,9 +106,9 @@ mrtrash_df =
 3) repeat for Professor Trash Wheel and Gwynnda, then combine
 ```{r}
 proftrash_df =
-  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+  read_excel("202309 Trash Wheel Collection Data.xlsx", 
              sheet="Professor Trash Wheel", 
-             range="A2:L96") |>
+             range="A2:L108") |>
   janitor::clean_names() |>
   mutate(kilowatts = weight_tons * 500,
          homes_powered = kilowatts / 30,
@@ -118,9 +118,9 @@ proftrash_df =
 proftrash_df
 
 gwynnda_df = 
-  read_excel("202207 Trash Wheel Collection Data.xlsx", 
+  read_excel("202309 Trash Wheel Collection Data.xlsx", 
              sheet="Gwynnda Trash Wheel", 
-             range="A2:J108") |>
+             range="A2:K157") |>
   janitor::clean_names() |>
   mutate(kilowatts = weight_tons * 500,
          homes_powered = kilowatts / 30,
