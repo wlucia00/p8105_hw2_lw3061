@@ -101,6 +101,8 @@ mrtrash_df =
   mutate(kilowatts = weight_tons * 500,
          homes_powered = kilowatts / 30,
          name = "Mr. Trash Wheel") 
+
+mrtrash_df
 ```
 
 3) repeat for Professor Trash Wheel and Gwynnda, then combine
@@ -153,7 +155,7 @@ baseline_df =
   read_csv("data_mci/MCI_baseline.csv", skip=1) |>
   janitor::clean_names() 
 ```
-The data currently has `r nrow(baseline_df)` observations.
+The data currently has `r nrow(baseline_df)` observations which is the number of participants that were recruited.
 
 2) recode variables and remove participants who did not have an age of onset of MCI
 ```{r}
@@ -169,9 +171,9 @@ baseline_df = baseline_df |>
                        "1" ~ "Carrier"),
     id = as.character(id)
         ) |>
-  filter(age_at_onset!=".") 
+  filter(age_at_onset == "." | age_at_onset >= current_age) 
 ```
-The number of observations that had an age of onset for MCI was `r nrow(baseline_df)`. 
+The number of participants that developed MCI was `r nrow(filter(baseline_df, age_at_onset != "."))`. 
 
 The average baseline age of this final dataset was `r round(mean(pull(baseline_df,current_age)),digits=2)` years.
 
@@ -210,13 +212,21 @@ anti_combine_2 =
 mci_amyloid_combine = 
   inner_join(baseline_df, amyloid_df, by="id")
 ```
-The final tidied dataset combining baseline and amyloid data only had full data for `r nrow(mci_amyloid_combine)` participants. 
+The final tidied dataset combining baseline and amyloid data only had full data for `r nrow(mci_amyloid_combine)` participants.The average age at baseline was `r round(mean(pull(mci_amyloid_combine, current_age)), digits=2)` years.
 
-The average age at baseline for this group was `r round(mean(pull(mci_amyloid_combine, current_age)), digits=2)` years, and the average age of onset for MCI was `r round(mean(pull(mci_amyloid_combine, age_at_onset)), digits=2)`. 
+```{r, warning=FALSE, echo=FALSE, message=FALSE}
+developed_mci = mci_amyloid_combine |>
+  filter(age_at_onset != ".") |>
+  mutate(
+    age_at_onset = as.numeric(age_at_onset)
+  )
+```
 
-Of these participants, `r nrow(filter(mci_amyloid_combine, sex=="Female"))` were women.
+For the `r nrow(filter(mci_amyloid_combine, age_at_onset != "."))` participants who developed MCI who had biomarker values, the average age of onset was `r round(mean(pull(developed_mci, age_at_onset)), digits=2)` years.
 
-The proportion of participants who were carriers of the APOE4 variant was `r round(nrow(filter(mci_amyloid_combine, apoe4=="Carrier")) / nrow(mci_amyloid_combine), digits=2)`. 
+Of all participants, `r nrow(filter(mci_amyloid_combine, sex=="Female"))` were women. `r nrow(filter(developed_mci, sex=="Female"))` of subjects that developed MCI were women. 
+
+The proportion of participants who were carriers of the APOE4 variant was `r round(nrow(filter(mci_amyloid_combine, apoe4=="Carrier")) / nrow(mci_amyloid_combine), digits=2)`. The proportion in those who developed MCI was `r round(nrow(filter(developed_mci, apoe4=="Carrier")) / nrow(developed_mci), digits=2)`. 
 
 5) Export the data to the directory.
 ```{r, message=FALSE}
